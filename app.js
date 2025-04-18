@@ -67,6 +67,11 @@ function updateItemList() {
   const container = document.getElementById("itemsContainer");
   container.innerHTML = "";
 
+  if (scannedItems.length === 0) {
+    container.innerHTML = "No items yet";
+    return;
+  }
+
   scannedItems.forEach((item, index) => {
     const div = document.createElement("div");
     div.innerHTML = `
