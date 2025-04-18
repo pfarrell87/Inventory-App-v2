@@ -1,76 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inventory Entry</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory App</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-wrapper">
-    <h1>📦 Inventory Count Tool</h1>
+  <div class="app">
+    <h1>📦 Inventory Count</h1>
 
     <div class="section">
-      <label>Technician Name</label>
-      <input type="text" id="techName" placeholder="Enter your name">
+      <label>Technician Name:</label>
+      <input type="text" id="techName" placeholder="Enter your name" />
     </div>
 
     <div class="section">
-      <label>Location Type</label>
-      <select id="locationType">
-        <option value="">Select</option>
-        <option>Warehouse</option>
-        <option>Company Vehicle</option>
-        <option>Personal Vehicle</option>
-        <option>Storage Unit</option>
+      <label>Company:</label>
+      <select id="company">
+        <option value="TN">A Head for Profits</option>
+        <option value="IL">AHFP of Illinois</option>
+        <option value="CA">Glacier Design Systems</option>
       </select>
     </div>
 
     <div class="section">
-      <label>Location Name / Tag</label>
-      <input type="text" id="locationId" placeholder="e.g. TRK-101 or Nashville WH">
-    </div>
-
-    <div class="section">
-      <label>Market</label>
-      <select id="market"></select>
-    </div>
-
-    <div class="section">
-      <label>Department</label>
+      <label>Department:</label>
       <select id="department">
-        <option value="">Select</option>
-        <option value="DS">Draft Service</option>
-        <option value="LC">Line Cleaning</option>
-        <option value="SI">Sales & Install</option>
-        <option value="NB">Non Beverage</option>
+        <option value="DS">Draft Service Tech (DS)</option>
+        <option value="LC">Line Cleaning (LC)</option>
+        <option value="SI">Sales & Installation (SI)</option>
+        <option value="NB">Non Beverage (NB)</option>
       </select>
     </div>
 
-    <hr>
+    <div class="section">
+      <label>Market:</label>
+      <input type="text" id="market" placeholder="Enter market code (e.g. FLSE)" />
+    </div>
 
     <div class="section">
-      <label>Search for Part (or scan QR)</label>
-      <input type="text" id="searchInput" placeholder="Part number, description, or category">
+      <label>Location Type:</label>
+      <select id="locationType">
+        <option value="Warehouse">Warehouse</option>
+        <option value="Company Vehicle">Company Vehicle</option>
+        <option value="Personal Vehicle">Personal Vehicle</option>
+        <option value="Storage Unit">Storage Unit</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <label>Location Name / Tag:</label>
+      <input type="text" id="locationTag" placeholder="e.g. Truck-12 or Nashville Main" />
+    </div>
+
+    <hr />
+
+    <div class="section">
+      <label>Scan or Search Part Number:</label>
+      <input type="text" id="searchInput" placeholder="Scan or type part number / keyword" />
       <button onclick="searchPart()">Search</button>
     </div>
 
-    <div id="searchResult" class="result-box"></div>
+    <div id="partDetails" class="part-box hidden"></div>
 
-    <div id="quantityEntry" class="section" style="display: none;">
-      <label>Quantity On Hand</label>
-      <input type="number" id="quantity" min="0">
-      <button onclick="addItem()">Add Item</button>
+    <div id="quantityEntry" class="section hidden">
+      <label>Quantity on Hand:</label>
+      <input type="number" id="quantity" min="0" />
+      <button onclick="addItemToList()">Add to List</button>
     </div>
 
-    <hr>
-
-    <h2>🧾 Inventory List</h2>
-    <div id="itemList"></div>
-
-    <div class="section">
-      <button class="submit-btn" onclick="submitInventory()">📤 Submit Inventory</button>
+    <div id="itemList" class="section">
+      <h2>🧾 Items Added</h2>
+      <div id="itemContainer">No items yet</div>
     </div>
+
+    <button id="submitButton" onclick="submitInventory()">✅ Submit Inventory</button>
   </div>
 
   <script src="app.js"></script>
