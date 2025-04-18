@@ -1,7 +1,7 @@
 // Inventory App - v2
 
-const SEARCH_ENDPOINT = "https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_glwB0nCI3-3eSRz2B1KFkIaEjJSRks3yOPp3nNalUKA/exec";
-const SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbx-lDG7JRH4fRXG-Asmf7zdGtgchC3Noe_QNWKFcYtnO2T_TbZN4gh65PzUsCADtR4wSQ/exec";
+const SEARCH_ENDPOINT = "https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_gWB0nCI3-3eSRz2B1KFkIaEjJSRks3yQPp3nNalUKA/exec";
+const SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_gWB0nCI3-3eSRz2B1KFkIaEjJSRks3yQPp3nNalUKA/exec";
 
 let scannedItems = [];
 
