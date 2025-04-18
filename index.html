@@ -12,46 +12,75 @@
 
     <div class="section">
       <label>Technician Name:</label>
-      <input type="text" id="techName" placeholder="Enter your name" />
+      <input type="text" id="technician" placeholder="Enter your name" required />
     </div>
 
     <div class="section">
       <label>Company:</label>
-      <select id="company">
-        <option value="TN">A Head for Profits</option>
-        <option value="IL">AHFP of Illinois</option>
-        <option value="CA">Glacier Design Systems</option>
+      <select id="company" required>
+        <option value="">-- Select Company --</option>
+        <option>A Head for Profits</option>
+        <option>AHFP of Illinois - T&G</option>
+        <option>AHFP of Illinois - Stuever & Sons</option>
+        <option>Glacier Design Systems</option>
       </select>
     </div>
 
     <div class="section">
       <label>Department:</label>
-      <select id="department">
-        <option value="DS">Draft Service Tech (DS)</option>
-        <option value="LC">Line Cleaning (LC)</option>
-        <option value="SI">Sales & Installation (SI)</option>
-        <option value="NB">Non Beverage (NB)</option>
+      <select id="department" required>
+        <option value="">-- Select Department --</option>
+        <option>DS</option>
+        <option>LC</option>
+        <option>SI</option>
       </select>
     </div>
 
     <div class="section">
       <label>Market:</label>
-      <input type="text" id="market" placeholder="Enter market code (e.g. FLSE)" />
+      <select id="market" required>
+        <option value="">-- Select Market --</option>
+        <option>Alabama - North</option>
+        <option>Alabama - South</option>
+        <option>Arkansas - Little Rock</option>
+        <option>Mississippi - North</option>
+        <option>Missouri - East</option>
+        <option>Tennessee - Central</option>
+        <option>Tennessee - East</option>
+        <option>Tennessee - West</option>
+        <option>Texas - Central</option>
+        <option>Texas - South</option>
+        <option>Texas - Southeast</option>
+        <option>Florida - Northeast</option>
+        <option>Florida - Central</option>
+        <option>Florida - North</option>
+        <option>Florida - Southeast</option>
+        <option>Georgia - East</option>
+        <option>South Carolina - Central</option>
+        <option>South Carolina - East</option>
+        <option>South Carolina - Northeast</option>
+        <option>South Carolina - West</option>
+        <option>Virginia - Central</option>
+        <option>Virginia - North</option>
+        <option>Virginia - South</option>
+        <option>Illinois - Northwest (T&G)</option>
+      </select>
     </div>
 
     <div class="section">
       <label>Location Type:</label>
-      <select id="locationType">
-        <option value="Warehouse">Warehouse</option>
-        <option value="Company Vehicle">Company Vehicle</option>
-        <option value="Personal Vehicle">Personal Vehicle</option>
-        <option value="Storage Unit">Storage Unit</option>
+      <select id="locationType" required>
+        <option value="">-- Select Type --</option>
+        <option>Warehouse</option>
+        <option>Company Vehicle</option>
+        <option>Personal Vehicle</option>
+        <option>Storage Unit</option>
       </select>
     </div>
 
     <div class="section">
       <label>Location Name / Tag:</label>
-      <input type="text" id="locationTag" placeholder="e.g. Truck-12 or Nashville Main" />
+      <input type="text" id="locationTag" placeholder="e.g. Truck-12 or Nashville Main" required />
     </div>
 
     <hr />
@@ -66,13 +95,13 @@
 
     <div id="quantityEntry" class="section hidden">
       <label>Quantity on Hand:</label>
-      <input type="number" id="quantity" min="0" />
-      <button onclick="addItemToList()">Add to List</button>
+      <input type="number" id="quantityInput" min="0" />
+      <button onclick="addCurrentItem()">Add to List</button>
     </div>
 
     <div id="itemList" class="section">
       <h2>🧾 Items Added</h2>
-      <div id="itemContainer">No items yet</div>
+      <div id="itemsContainer">No items yet</div>
     </div>
 
     <button id="submitButton" onclick="submitInventory()">✅ Submit Inventory</button>
