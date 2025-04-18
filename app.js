@@ -1,35 +1,15 @@
+// Inventory App - v2
+
+const SEARCH_ENDPOINT = "https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_glwB0nCI3-3eSRz2B1KFkIaEjJSRks3yOPp3nNalUKA/exec";
+const SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbx-lDG7JRH4fRXG-Asmf7zdGtgchC3Noe_QNWKFcYtnO2T_TbZN4gh65PzUsCADtR4wSQ/exec";
+
 let scannedItems = [];
-
-function updateItemList() {
-  const container = document.getElementById("itemContainer");
-  if (scannedItems.length === 0) {
-    container.innerHTML = "<p>No items yet</p>";
-    return;
-  }
-
-  container.innerHTML = "";
-  scannedItems.forEach((item, index) => {
-    const div = document.createElement("div");
-    div.classList.add("item-entry");
-    div.innerHTML = `
-      <strong>${item["Part Number"]}</strong> - ${item.Description}  
-      <br/>Qty: ${item.Quantity}
-      <button onclick="removeItem(${index})">🗑️ Remove</button>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function removeItem(index) {
-  scannedItems.splice(index, 1);
-  updateItemList();
-}
 
 function searchPart() {
   const query = document.getElementById("searchInput").value.trim();
   if (!query) return;
 
-  const url = `https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_gWB0nCI3-3eSRz2B1KFkIaEjJSRks3yQPp3nNalUKA/exec?search=${encodeURIComponent(query)}`;
+  const url = `${SEARCH_ENDPOINT}?search=${encodeURIComponent(query)}`;
 
   fetch(url)
     .then(res => res.json())
@@ -41,58 +21,94 @@ function searchPart() {
         document.getElementById("partDetails").classList.add("hidden");
         document.getElementById("quantityEntry").classList.add("hidden");
       }
+    })
+    .catch(err => {
+      alert("Error searching part: " + err.message);
     });
 }
 
 function showPart(item) {
   const container = document.getElementById("partDetails");
   container.classList.remove("hidden");
+
   container.innerHTML = `
     <h3>${item["Part Number"]}</h3>
     <p><strong>${item.Manufacturer}</strong></p>
     <p>${item.Description}</p>
     <p>Category: ${item.Category}</p>
-    <p>Sale Price: $${item["Sale Price"] || "N/A"} | Net: $${item.Net || "N/A"}</p>
+    <p>Net: ${item.Net || "N/A"} | Sell: ${item["Sale Price"] || "N/A"}</p>
   `;
 
   document.getElementById("quantityEntry").classList.remove("hidden");
-
-  container.dataset.part = JSON.stringify(item);
+  document.getElementById("quantityInput").focus();
+  container.dataset.currentItem = JSON.stringify(item);
 }
 
-function addItemToList() {
-  const raw = document.getElementById("partDetails").dataset.part;
-  const item = JSON.parse(raw);
-  const qty = parseInt(document.getElementById("quantity").value, 10);
-  if (isNaN(qty) || qty < 0) return alert("Enter a valid quantity");
+function addCurrentItem() {
+  const quantity = parseInt(document.getElementById("quantityInput").value, 10);
+  if (!quantity || quantity <= 0) return;
 
-  item.Quantity = qty;
-  item.Used = !item.Net && !item["Sale Price"];
-  item.Unknown = !item["Part Number"] || !item.Description;
+  const currentItem = JSON.parse(document.getElementById("partDetails").dataset.currentItem);
+  scannedItems.push({
+    "Part Number": currentItem["Part Number"],
+    Description: currentItem.Description,
+    Quantity: quantity,
+    Used: !currentItem.Net || !currentItem["Sale Price"],
+    Unknown: !currentItem["Part Number"] || !currentItem.Description
+  });
 
-  scannedItems.push(item);
   updateItemList();
-  document.getElementById("quantity").value = "";
-  document.getElementById("searchInput").value = "";
-  document.getElementById("quantityEntry").classList.add("hidden");
+  document.getElementById("quantityInput").value = "";
   document.getElementById("partDetails").classList.add("hidden");
+  document.getElementById("quantityEntry").classList.add("hidden");
+}
+
+function updateItemList() {
+  const container = document.getElementById("itemsContainer");
+  container.innerHTML = "";
+
+  scannedItems.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <strong>${item["Part Number"]}</strong> - ${item.Description}<br>
+      Qty: ${item.Quantity}
+      <button onclick="removeItem(${index})">🗑 Remove</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function removeItem(index) {
+  scannedItems.splice(index, 1);
+  updateItemList();
 }
 
 function submitInventory() {
+  const technician = document.getElementById("technician").value.trim();
+  const company = document.getElementById("company").value;
+  const department = document.getElementById("department").value;
+  const market = document.getElementById("market").value;
+  const locationType = document.getElementById("locationType").value;
+  const locationTag = document.getElementById("locationTag").value.trim();
+
+  if (!technician || !market || !department || !company || !locationType || !locationTag || scannedItems.length === 0) {
+    alert("Please complete all fields and add at least one item.");
+    return;
+  }
+
   const payload = {
-    technician: document.getElementById("techName").value.trim(),
-    company: document.getElementById("company").value,
-    department: document.getElementById("department").value,
-    market: document.getElementById("market").value.trim(),
+    technician,
+    company,
+    department,
+    market,
     location: {
-      type: document.getElementById("locationType").value,
-      tag: document.getElementById("locationTag").value.trim()
+      type: locationType,
+      tag: locationTag
     },
-    items: scannedItems,
-    submittedAt: new Date().toISOString()
+    items: scannedItems
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbx-lDG7JRH4fRXG-Asmf7zdGtgchC3Noe_QNWKFcYtnO2T_TbZN4gh65PzUsCADtR4wSQ/exec", {
+  fetch(SUBMIT_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -102,15 +118,16 @@ function submitInventory() {
     .then(res => res.json())
     .then(data => {
       if (data.status === "success") {
-        alert("✅ Submission successful!");
+        alert(`✅ Submitted ${data.received} items successfully`);
         scannedItems = [];
         updateItemList();
       } else {
-        alert("⚠️ Submission failed: " + data.message);
+        console.error("Error:", data);
+        alert("❌ Submission failed. Check console for details.");
       }
     })
     .catch(err => {
       console.error("Submission error:", err);
-      alert("❌ Submission failed. Check console for details.");
+      alert("❌ Error submitting inventory: " + err.message);
     });
 }
