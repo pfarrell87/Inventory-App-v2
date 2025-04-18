@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Entry</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <h1>📦 Inventory Count Tool</h1>
+
+    <div class="section">
+      <label>Technician Name</label>
+      <input type="text" id="techName" placeholder="Enter your name">
+    </div>
+
+    <div class="section">
+      <label>Location Type</label>
+      <select id="locationType">
+        <option value="">Select</option>
+        <option>Warehouse</option>
+        <option>Company Vehicle</option>
+        <option>Personal Vehicle</option>
+        <option>Storage Unit</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <label>Location Name / Tag</label>
+      <input type="text" id="locationId" placeholder="e.g. TRK-101 or Nashville WH">
+    </div>
+
+    <div class="section">
+      <label>Market</label>
+      <select id="market"></select>
+    </div>
+
+    <div class="section">
+      <label>Department</label>
+      <select id="department">
+        <option value="">Select</option>
+        <option value="DS">Draft Service</option>
+        <option value="LC">Line Cleaning</option>
+        <option value="SI">Sales & Install</option>
+        <option value="NB">Non Beverage</option>
+      </select>
+    </div>
+
+    <hr>
+
+    <div class="section">
+      <label>Search for Part (or scan QR)</label>
+      <input type="text" id="searchInput" placeholder="Part number, description, or category">
+      <button onclick="searchPart()">Search</button>
+    </div>
+
+    <div id="searchResult" class="result-box"></div>
+
+    <div id="quantityEntry" class="section" style="display: none;">
+      <label>Quantity On Hand</label>
+      <input type="number" id="quantity" min="0">
+      <button onclick="addItem()">Add Item</button>
+    </div>
+
+    <hr>
+
+    <h2>🧾 Inventory List</h2>
+    <div id="itemList"></div>
+
+    <div class="section">
+      <button class="submit-btn" onclick="submitInventory()">📤 Submit Inventory</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
