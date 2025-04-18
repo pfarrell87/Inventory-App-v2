@@ -1,96 +1,81 @@
-// Config
-const API_URL = "https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_gWB0nCI3-3eSRz2B1KFkIaEjJSRks3yQPp3nNalUKA/exec";
-
 let scannedItems = [];
-let currentItem = null;
+
+function updateItemList() {
+  const container = document.getElementById("itemContainer");
+  if (scannedItems.length === 0) {
+    container.innerHTML = "<p>No items yet</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+  scannedItems.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.classList.add("item-entry");
+    div.innerHTML = `
+      <strong>${item["Part Number"]}</strong> - ${item.Description}  
+      <br/>Qty: ${item.Quantity}
+      <button onclick="removeItem(${index})">🗑️ Remove</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function removeItem(index) {
+  scannedItems.splice(index, 1);
+  updateItemList();
+}
 
 function searchPart() {
   const query = document.getElementById("searchInput").value.trim();
   if (!query) return;
 
-  document.getElementById("partDetails").innerHTML = "<p>Searching...</p>";
-  document.getElementById("partDetails").classList.remove("hidden");
+  const url = `https://script.google.com/macros/s/AKfycbz8BrfLcjAmBAwpkvtV9zIMzxn_gWB0nCI3-3eSRz2B1KFkIaEjJSRks3yQPp3nNalUKA/exec?search=${encodeURIComponent(query)}`;
 
-  fetch(`${API_URL}?partNumber=${encodeURIComponent(query)}`)
+  fetch(url)
     .then(res => res.json())
     .then(data => {
       if (data.status === "success") {
-        currentItem = data.item;
-        showPartDetails(currentItem);
+        showPart(data.item);
       } else {
-        handleUnknownPart(query);
+        alert("❌ No match found");
+        document.getElementById("partDetails").classList.add("hidden");
+        document.getElementById("quantityEntry").classList.add("hidden");
       }
-    })
-    .catch(err => {
-      console.error(err);
-      handleUnknownPart(query);
     });
 }
 
-function handleUnknownPart(query) {
-  currentItem = {
-    "Part Number": query,
-    "Description": "Unknown part",
-    "Unknown": true
-  };
-  showPartDetails(currentItem);
-}
+function showPart(item) {
+  const container = document.getElementById("partDetails");
+  container.classList.remove("hidden");
+  container.innerHTML = `
+    <h3>${item["Part Number"]}</h3>
+    <p><strong>${item.Manufacturer}</strong></p>
+    <p>${item.Description}</p>
+    <p>Category: ${item.Category}</p>
+    <p>Sale Price: $${item["Sale Price"] || "N/A"} | Net: $${item.Net || "N/A"}</p>
+  `;
 
-function showPartDetails(item) {
-  let html = `<strong>${item["Part Number"]}</strong><br>${item.Description || "No description"}`;
-  if (item["Image URL"]) {
-    html += `<div><img src="${item["Image URL"]}" alt="Image" style="max-width:100%;margin-top:10px;"></div>`;
-  }
-  if (!item["Net"] && !item["Sale Price"]) {
-    html += `<p style='color:red;'>⚠️ No Net or Sale Price found — marked as USED</p>`;
-  }
-  if (item.Unknown) {
-    html += `<p style='color:orange;'>⚠️ Unknown part number</p>`;
-  }
-  document.getElementById("partDetails").innerHTML = html;
   document.getElementById("quantityEntry").classList.remove("hidden");
+
+  container.dataset.part = JSON.stringify(item);
 }
 
 function addItemToList() {
-  const qty = parseInt(document.getElementById("quantity").value);
-  if (!qty || qty <= 0) return alert("Enter a valid quantity");
+  const raw = document.getElementById("partDetails").dataset.part;
+  const item = JSON.parse(raw);
+  const qty = parseInt(document.getElementById("quantity").value, 10);
+  if (isNaN(qty) || qty < 0) return alert("Enter a valid quantity");
 
-  const existingIndex = scannedItems.findIndex(i => i["Part Number"] === currentItem["Part Number"]);
-  if (existingIndex !== -1) {
-    const update = confirm("Part already in list. Add to quantity or replace?");
-    if (update) {
-      scannedItems[existingIndex].Quantity += qty;
-    } else {
-      scannedItems[existingIndex].Quantity = qty;
-    }
-  } else {
-    scannedItems.push({
-      "Part Number": currentItem["Part Number"],
-      "Description": currentItem.Description,
-      "Used": !currentItem["Net"] && !currentItem["Sale Price"],
-      "Unknown": !!currentItem.Unknown,
-      "Quantity": qty
-    });
-  }
+  item.Quantity = qty;
+  item.Used = !item.Net && !item["Sale Price"];
+  item.Unknown = !item["Part Number"] || !item.Description;
 
-  document.getElementById("quantity").value = "";
-  document.getElementById("partDetails").innerHTML = "";
-  document.getElementById("quantityEntry").classList.add("hidden");
+  scannedItems.push(item);
   updateItemList();
-}
-
-function updateItemList() {
-  const container = document.getElementById("itemContainer");
-  if (scannedItems.length === 0) return (container.innerHTML = "No items yet");
-
-  container.innerHTML = scannedItems
-    .map(i => {
-      let line = `<strong>${i["Part Number"]}</strong> - ${i.Description} (x${i.Quantity})`;
-      if (i.Used) line += " <span style='color:red;'>(USED)</span>";
-      if (i.Unknown) line += " <span style='color:orange;'>(UNKNOWN)</span>";
-      return `<div>${line}</div>`;
-    })
-    .join("");
+  document.getElementById("quantity").value = "";
+  document.getElementById("searchInput").value = "";
+  document.getElementById("quantityEntry").classList.add("hidden");
+  document.getElementById("partDetails").classList.add("hidden");
 }
 
 function submitInventory() {
@@ -107,6 +92,25 @@ function submitInventory() {
     submittedAt: new Date().toISOString()
   };
 
-  console.log("Submitting...", payload);
-  alert("Submission ready — payload printed to console (for now). Real submission coming soon.");
+  fetch("https://script.google.com/macros/s/AKfycbx-lDG7JRH4fRXG-Asmf7zdGtgchC3Noe_QNWKFcYtnO2T_TbZN4gh65PzUsCADtR4wSQ/exec", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        alert("✅ Submission successful!");
+        scannedItems = [];
+        updateItemList();
+      } else {
+        alert("⚠️ Submission failed: " + data.message);
+      }
+    })
+    .catch(err => {
+      console.error("Submission error:", err);
+      alert("❌ Submission failed. Check console for details.");
+    });
 }
